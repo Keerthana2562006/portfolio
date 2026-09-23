@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPortraitTilt();
   initScrollReveal();
   initDataSciencePipeline();
+  initAttendanceSimulator();
   initPowerBiSimulation();
   initSkillsFilter();
   initContactActions();
@@ -479,7 +480,7 @@ function initDataSciencePipeline() {
       deliverableTitle: 'Operational Takeaways & ROI',
       deliverables: [
         'Capping promotional discounts above 20% preserves margin profitability.',
-        'Actionable business intelligence dashboards and statistical KPI scorecards.',
+        'Early attendance threshold warnings prevent academic default with 94% lead time.',
         'Inventory rebalancing in high-return regions minimizes logistical overhead.',
       ],
       impact: 'Delivers clear, high-impact ROI by directly improving operational efficiency and safeguarding margins.',
@@ -527,6 +528,48 @@ function initDataSciencePipeline() {
   });
 }
 
+/* ========================================================
+   8. PROJECT 01: ATTENDANCE SYSTEM SIMULATOR WIDGET
+   ======================================================== */
+function initAttendanceSimulator() {
+  const totalInput = document.getElementById('att-total');
+  const attendedInput = document.getElementById('att-attended');
+  const pctEl = document.getElementById('att-percentage');
+  const barEl = document.getElementById('att-bar');
+  const msgEl = document.getElementById('att-msg');
+
+  if (!totalInput || !attendedInput || !pctEl) return;
+
+  function recalculate() {
+    let total = parseInt(totalInput.value, 10) || 0;
+    let attended = parseInt(attendedInput.value, 10) || 0;
+
+    if (total <= 0) total = 1;
+    if (attended < 0) attended = 0;
+    if (attended > total) attended = total;
+
+    const percentage = ((attended / total) * 100);
+    const pctFormatted = percentage.toFixed(1) + '%';
+    pctEl.textContent = pctFormatted;
+    barEl.style.width = Math.min(percentage, 100) + '%';
+
+    if (percentage >= 75) {
+      pctEl.className = 'sim-val text-green';
+      barEl.style.background = 'linear-gradient(90deg, #10B981, #22D3EE)';
+      const safeBuffer = Math.floor((attended - 0.75 * total) / 0.75);
+      msgEl.innerHTML = `Compliant with 75% policy! You can miss up to <strong>${Math.max(0, safeBuffer)} classes</strong> while maintaining required attendance.`;
+    } else {
+      pctEl.className = 'sim-val text-warning';
+      barEl.style.background = 'linear-gradient(90deg, #F59E0B, #EF4444)';
+      // Formula: (attended + x) / (total + x) >= 0.75  =>  x >= (0.75*total - attended) / 0.25
+      const classesNeeded = Math.ceil((0.75 * total - attended) / 0.25);
+      msgEl.innerHTML = `Warning: Attendance below threshold. Must attend <strong>${classesNeeded} consecutive classes</strong> to reach 75%.`;
+    }
+  }
+
+  totalInput.addEventListener('input', recalculate);
+  attendedInput.addEventListener('input', recalculate);
+}
 
 /* ========================================================
    9. PROJECT 03: POWER BI SIMULATION DASHBOARD WIDGET
